@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -37,12 +38,16 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
   private final static String TAB = "  ";
   private final static String namespaceBase = "http://www.sa.dk/xmlns/siard/1.0/";
 
+  private final Logger logger = Logger.getLogger(SIARDDKContentExportStrategy.class);
+
   private ContentPathExportStrategy contentPathExportStrategy;
   private FileIndexFileStrategy fileIndexFileStrategy;
   private SIARDArchiveContainer baseContainer;
   private OutputStream currentStream;
   private BufferedWriter currentWriter;
+  private TableStructure currentTableStructure;
   private WriteStrategy writeStrategy;
+  private boolean unhandledLOBs;
 
   public SIARDDKContentExportStrategy(SIARDDKExportModule siarddkExportModule) {
 
@@ -50,6 +55,8 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
     fileIndexFileStrategy = siarddkExportModule.getFileIndexFileStrategy();
     baseContainer = siarddkExportModule.getMainContainer();
     writeStrategy = siarddkExportModule.getWriteStrategy();
+
+    unhandledLOBs = false;
   }
 
   @Override
@@ -70,6 +77,7 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
     currentStream = fileIndexFileStrategy.getWriter(baseContainer,
       contentPathExportStrategy.getTableXmlFilePath(0, tableStructure.getIndex()), writeStrategy);
     currentWriter = new BufferedWriter(new OutputStreamWriter(currentStream));
+    currentTableStructure = tableStructure;
 
     // Note: cannot use JAXB or JDOM to generate XML for tables, since the
     // actual tables are too large
@@ -190,6 +198,10 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
     } catch (IOException e) {
       throw new ModuleException("Could not write table" + tableStructure.getIndex() + " to disk", e);
     }
+
+    logger.warn("There are unhandled LOBs at table " + currentTableStructure.getIndex() + "!!");
+    unhandledLOBs = false;
+
   }
 
   @Override
@@ -217,7 +229,12 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
 
           // BinaryCell binaryCell = (BinaryCell) cell;
 
-          throw new ModuleException("Cannot handle binary cells yet");
+          // TO-DO: fix this!
+          currentWriter.append(TAB).append(TAB).append("<c").append(String.valueOf(columnIndex)).append(">")
+            .append("0").append("</c").append(String.valueOf(columnIndex)).append(">\n");
+
+          unhandledLOBs = true;
+
         } else if (cell instanceof ComposedCell) {
           throw new ModuleException("Cannot handle composed cells yet");
         }
