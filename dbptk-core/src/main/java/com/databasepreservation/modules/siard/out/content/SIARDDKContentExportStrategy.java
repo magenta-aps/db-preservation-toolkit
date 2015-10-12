@@ -199,7 +199,7 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
       throw new ModuleException("Could not write table" + tableStructure.getIndex() + " to disk", e);
     }
 
-    logger.warn("There are unhandled LOBs at table " + currentTableStructure.getIndex() + "!!");
+    logger.warn("There are unhandled LOBs in table " + currentTableStructure.getIndex() + "!!");
     unhandledLOBs = false;
 
   }
