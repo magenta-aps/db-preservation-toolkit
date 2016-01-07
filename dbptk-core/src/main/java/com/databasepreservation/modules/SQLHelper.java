@@ -46,6 +46,8 @@ public class SQLHelper {
 
   private String endQuote = "";
 
+  private String separatorSchemaTable = ".";
+
   public String getName() {
     return name;
   }
@@ -58,11 +60,15 @@ public class SQLHelper {
     return endQuote;
   }
 
+  public String getSeparatorSchemaTable() {
+    return separatorSchemaTable;
+  }
+
   /**
    * SQL to get all rows from a table
    *
-   * @param tableName
-   *          the table name
+   * @param tableId
+   *          the table ID
    * @return the SQL
    * @throws ModuleException
    */
@@ -156,11 +162,11 @@ public class SQLHelper {
         ret = "char(" + string.getLength() + ")";
       }
     } else if (type instanceof SimpleTypeNumericExact) {
-      if (type.getSql99TypeName().equalsIgnoreCase("INTEGER")) {
+      if ("INTEGER".equalsIgnoreCase(type.getSql99TypeName())) {
         ret = "integer";
-      } else if (type.getSql99TypeName().equalsIgnoreCase("SMALLINT")) {
+      } else if ("SMALLINT".equalsIgnoreCase(type.getSql99TypeName())) {
         ret = "smallint";
-      } else if (type.getSql99TypeName().equalsIgnoreCase("DECIMAL")) {
+      } else if ("DECIMAL".equalsIgnoreCase(type.getSql99TypeName())) {
         ret = "decimal";
         if (getNumericExactPrecision(type, 30) > 0) {
           ret += "(" + getNumericExactPrecision(type, 30);
@@ -193,7 +199,7 @@ public class SQLHelper {
       if (!dateTime.getTimeDefined() && !dateTime.getTimeZoneDefined()) {
         ret = "date";
       } else {
-        if (type.getSql99TypeName().equalsIgnoreCase("TIME")) {
+        if ("TIME".equalsIgnoreCase(type.getSql99TypeName())) {
           ret = "time";
         } else {
           ret = "timestamp";
@@ -244,8 +250,8 @@ public class SQLHelper {
   /**
    * SQL to create the primary key, altering the already created table
    *
-   * @param tableName
-   *          the name of the table
+   * @param tableId
+   *          the ID of the table
    * @param pkey
    *          the primary key
    * @return the SQL
@@ -273,14 +279,14 @@ public class SQLHelper {
       ret.append(")");
     }
     String result = ret.toString();
-    return result.equals("") ? null : result;
+    return StringUtils.isBlank(result) ? null : result;
   }
 
   /**
    * SQL to create a foreign key (relation), altering the already created table
    *
-   * @param tableName
-   *          the name of the table
+   * @param table
+   *          the table structure
    * @param fkey
    *          the foreign key
    * @return the SQL
@@ -436,8 +442,9 @@ public class SQLHelper {
    *          The table name
    * @return the SQL to get table triggers
    */
-  public String getRowsSQL(String tableName) {
-    StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM ").append(escapeTableName(tableName));
+  public String getRowsSQL(String schemaName, String tableName) {
+    StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM ").append(escapeSchemaName(schemaName))
+      .append(getSeparatorSchemaTable()).append(escapeTableName(tableName));
     return sb.toString();
   }
 

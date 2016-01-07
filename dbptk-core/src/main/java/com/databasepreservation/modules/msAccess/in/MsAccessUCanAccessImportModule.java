@@ -15,11 +15,17 @@ import com.databasepreservation.model.data.Cell;
 import com.databasepreservation.model.data.SimpleCell;
 import com.databasepreservation.model.exception.ModuleException;
 import com.databasepreservation.model.exception.UnknownTypeException;
+import com.databasepreservation.model.structure.PrivilegeStructure;
 import com.databasepreservation.model.structure.RoutineStructure;
+import com.databasepreservation.model.structure.TableStructure;
 import com.databasepreservation.model.structure.type.Type;
 import com.databasepreservation.modules.jdbc.in.JDBCImportModule;
 import com.databasepreservation.modules.msAccess.MsAccessHelper;
 
+/**
+ * @author Bruno Ferreira <bferreira@keep.pt>
+ * @author Luis Faria <lfaria@keep.pt>
+ */
 public class MsAccessUCanAccessImportModule extends JDBCImportModule {
 
   private final CustomLogger logger = CustomLogger.getLogger(MsAccessUCanAccessImportModule.class);
@@ -29,6 +35,11 @@ public class MsAccessUCanAccessImportModule extends JDBCImportModule {
       + ";showSchema=true;", new MsAccessHelper());
   }
 
+  public MsAccessUCanAccessImportModule(String accessFilePath) {
+    this(new File(accessFilePath));
+  }
+
+  @Override
   public Connection getConnection() throws SQLException, ClassNotFoundException {
     if (connection == null) {
       logger.debug("Loading JDBC Driver " + driverClassName);
@@ -41,17 +52,15 @@ public class MsAccessUCanAccessImportModule extends JDBCImportModule {
     return connection;
   }
 
-  protected ResultSet getTableRawData(String tableId) throws SQLException, ClassNotFoundException, ModuleException {
-    String tableName;
+  @Override
+  protected ResultSet getTableRawData(TableStructure table) throws SQLException, ClassNotFoundException,
+    ModuleException {
+    String tableId;
     ResultSet set = null;
-    try {
-      tableName = getDatabaseStructure().lookupTableStructure(tableId).getName();
-      logger.debug("query: " + sqlHelper.selectTableSQL(tableName));
-      set = getStatement().executeQuery(sqlHelper.selectTableSQL(tableName));
-      set.setFetchSize(ROW_FETCH_BLOCK_SIZE);
-    } catch (UnknownTypeException e) {
-      logger.debug("");
-    }
+    tableId = table.getId();
+    logger.debug("query: " + sqlHelper.selectTableSQL(tableId));
+    set = getStatement().executeQuery(sqlHelper.selectTableSQL(tableId));
+    set.setFetchSize(ROW_FETCH_BLOCK_SIZE);
 
     return set;
   }
@@ -62,6 +71,7 @@ public class MsAccessUCanAccessImportModule extends JDBCImportModule {
    * @throws SQLException
    * @throws ClassNotFoundException
    */
+  @Override
   protected List<RoutineStructure> getRoutines(String schemaName) throws SQLException, ClassNotFoundException {
     // TODO add optional fields to routine (use getProcedureColumns)
     Set<RoutineStructure> routines = new HashSet<RoutineStructure>();
@@ -89,19 +99,20 @@ public class MsAccessUCanAccessImportModule extends JDBCImportModule {
   /**
    * Drops money currency
    */
+  @Override
   protected Cell rawToCellSimpleTypeNumericApproximate(String id, String columnName, Type cellType, ResultSet rawData)
     throws SQLException {
     Cell cell = null;
-    if (cellType.getOriginalTypeName().equalsIgnoreCase("DOUBLE")) {
+    if ("DOUBLE".equalsIgnoreCase(cellType.getOriginalTypeName())) {
       String data = rawData.getString(columnName);
       String parts[] = data.split("E");
-      if (parts[1] != null) {
+      if (parts.length > 1 && parts[1] != null) {
         logger.warn("Double exponent lost: " + parts[1] + ". From " + data + " -> " + parts[0]);
       }
       cell = new SimpleCell(id, parts[0]);
     } else {
       String value;
-      if (cellType.getOriginalTypeName().equalsIgnoreCase("float4")) {
+      if ("float4".equalsIgnoreCase(cellType.getOriginalTypeName())) {
         Float f = rawData.getFloat(columnName);
         value = f.toString();
       } else {
@@ -125,5 +136,43 @@ public class MsAccessUCanAccessImportModule extends JDBCImportModule {
     // ignoredSchemas.add("INFORMATION_SCHEMA.*");
 
     return ignoredSchemas;
+  }
+
+  /**
+   * @return the database privileges
+   * @throws SQLException
+   * @throws ClassNotFoundException
+   */
+  @Override
+  protected List<PrivilegeStructure> getPrivileges() throws SQLException, ClassNotFoundException {
+    logger.info("Roles were not imported: not supported yet on " + getClass().getSimpleName());
+    return new ArrayList<PrivilegeStructure>();
+  }
+
+  /**
+   * Gets the UnsupportedDataType. This data type is a placeholder for
+   * unsupported data types
+   *
+   * @param dataType
+   * @param typeName
+   * @param columnSize
+   * @param decimalDigits
+   * @param numPrecRadix
+   * @return
+   * @throws UnknownTypeException
+   */
+  @Override
+  protected Type getUnsupportedDataType(int dataType, String typeName, int columnSize, int decimalDigits,
+    int numPrecRadix) throws UnknownTypeException {
+    Type unsupported = super.getUnsupportedDataType(dataType, typeName, columnSize, decimalDigits, numPrecRadix);
+    unsupported.setSql99TypeName("CHARACTER VARYING(50)"); // fixme: map the
+                                                           // unsupported
+                                                           // datatype to some
+                                                           // known type
+    unsupported.setSql2003TypeName("CHARACTER VARYING(50)"); // fixme: map the
+                                                             // unsupported
+                                                             // datatype to some
+                                                             // known type
+    return unsupported;
   }
 }
