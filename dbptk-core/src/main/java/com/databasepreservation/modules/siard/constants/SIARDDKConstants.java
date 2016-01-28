@@ -50,6 +50,13 @@ public class SIARDDKConstants {
   public static final String DEFAULT_MAX_CLOB_LENGTH = "2048";
   public static final String DEFAULT_CLOB_TYPE = "NATIONAL CHARACTER VARYING";
 
+  // Constants for converting CLOBs to tiff
+  public static final int PAGE_HEIGHT = 300;
+  public static final int PAGE_WIDTH = 300;
+  public static final int XMARGIN = 20;
+  public static final int YMARGIN = 20;
+  public static final int FONT_SIZE = 15;
+
   // Namespaces
   public static final String DBPTK_NS = "http://www.databasepreservation.com/xmlns/1.0";
 
