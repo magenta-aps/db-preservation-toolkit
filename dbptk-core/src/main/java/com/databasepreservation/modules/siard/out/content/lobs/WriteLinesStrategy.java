@@ -9,13 +9,13 @@ public interface WriteLinesStrategy {
   /**
    * Writes lines to image
    * 
-   * @param clob
-   *          String to write
+   * @param characters
+   *          Characters from CLOB to write to tiff image
    * @param image
    *          Image to write to
    * @return Remainder to string that could fit into the image
    */
-  public Object writeLines(String clob, TiffPage tiffPage);
+  public char[] writeLines(char[] characters, TiffPage tiffPage);
 
   /**
    * Get the pixel width of a string

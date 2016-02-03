@@ -56,8 +56,8 @@ public class TiffPage {
    *          An array of words to be written to line in the image
    * @return Array of remaining words which could not fit into the line
    */
-  public Object writeLines(String clob) {
-    return writeLinesStrategy.writeLines(clob, this);
+  public char[] writeLines(char[] characters) {
+    return writeLinesStrategy.writeLines(characters, this);
   }
 
   public void saveTiff() {
@@ -104,5 +104,19 @@ public class TiffPage {
    */
   public int getEffectiveHeight() {
     return height - 2 * yMargin;
+  }
+
+  /**
+   * @return the xMargin
+   */
+  public int getxMargin() {
+    return xMargin;
+  }
+
+  /**
+   * @return the yMargin
+   */
+  public int getyMargin() {
+    return yMargin;
   }
 }
