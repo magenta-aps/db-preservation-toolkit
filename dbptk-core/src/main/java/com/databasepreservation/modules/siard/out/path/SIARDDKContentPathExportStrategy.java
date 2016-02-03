@@ -24,9 +24,25 @@ public class SIARDDKContentPathExportStrategy implements ContentPathExportStrate
     lobsTracker = siarddkExportModule.getLobsTracker();
   }
 
+  /**
+   * Returns the path (including the file extension) of the current CLOB file to
+   * be archived
+   */
   @Override
   public String getClobFilePath(int schemaIndex, int tableIndex, int columnIndex, int rowIndex) {
-    return null;
+
+    // TO-DO: add test case
+
+    int docCollectionCount = lobsTracker.getDocCollectionCount();
+    int folderCount = lobsTracker.getFolderCount();
+    int clobFileCount = lobsTracker.getClobFileCount();
+
+    StringBuilder builder = new StringBuilder().append(DOCUMENT_DIR).append(SIARDDKConstants.FILE_SEPARATOR)
+      .append(DOC_COLLECTION).append(docCollectionCount).append(SIARDDKConstants.FILE_SEPARATOR).append(folderCount)
+      .append(SIARDDKConstants.FILE_SEPARATOR).append(clobFileCount).append(SIARDDKConstants.FILE_EXTENSION_SEPARATOR)
+      .append(SIARDDKConstants.FILE_EXTENSION_SEPARATOR).append(SIARDDKConstants.CLOB_FILE_EXTENSION);
+
+    return builder.toString();
   }
 
   /**

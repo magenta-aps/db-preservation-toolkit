@@ -159,6 +159,16 @@ public class TestLOBsTracker {
     assertEquals(9999, lobsTracker.getFolderCount());
   }
 
+  @Test
+  public void clobFileCountShouldBeCorrect() {
+    assertEquals(1, lobsTracker.getClobFileCount());
+    lobsTracker.addClobFile();
+    lobsTracker.addClobFile();
+    assertEquals(3, lobsTracker.getClobFileCount());
+    lobsTracker.resetClobFileCount();
+    assertEquals(1, lobsTracker.getClobFileCount());
+  }
+
   private void addLOB() {
     lobsTracker.addLOB();
   }

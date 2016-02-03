@@ -29,6 +29,7 @@ import com.databasepreservation.modules.siard.common.LargeObject;
 import com.databasepreservation.modules.siard.common.ProvidesInputStream;
 import com.databasepreservation.modules.siard.common.SIARDArchiveContainer;
 import com.databasepreservation.modules.siard.constants.SIARDDKConstants;
+import com.databasepreservation.modules.siard.out.content.lobs.TiffPage;
 import com.databasepreservation.modules.siard.out.metadata.DocIndexFileStrategy;
 import com.databasepreservation.modules.siard.out.metadata.FileIndexFileStrategy;
 import com.databasepreservation.modules.siard.out.output.SIARDDKExportModule;
@@ -294,21 +295,51 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
 
               // CLOB is not NULL
 
-              // if CLOB is large enough
-              // while more CLOB content:
-              // get outputstream from fileindexfilestrategy
-              // tiffPage.writeCLOBToOutputStream
-              // close outputstream
+              lobsTracker.addLOB();
 
-              // else do as below
+              tableXmlWriter.append(TAB).append(TAB).append("<c").append(String.valueOf(columnIndex)).append(">")
+                .append(Integer.toString(lobsTracker.getLOBsCount())).append("</c").append(String.valueOf(columnIndex))
+                .append(">\n");
 
               foundClob = true;
               String clobsData = simpleCell.getSimpledata();
-              lobsTracker.updateMaxClobLength(tableCounter, columnIndex, clobsData.length());
+              if (clobsData.length() > CLOBsThresholdLength) {
 
-              // lobsTracker.addLOB(); // Only if LOB not NULL
-              tableXmlWriter.append(TAB).append(TAB).append("<c").append(String.valueOf(columnIndex)).append(">")
-                .append(XMLUtils.encode(clobsData)).append("</c").append(String.valueOf(columnIndex)).append(">\n");
+                // Archive CLOB as tiff
+
+                char[] characters = new char[clobsData.length()];
+                clobsData.getChars(0, clobsData.length(), characters, 0);
+
+                while (characters.length > 0) {
+
+                  TiffPage tiffPage = new TiffPage(SIARDDKConstants.PAGE_WIDTH, SIARDDKConstants.PAGE_HEIGHT);
+
+                  String path = contentPathExportStrategy.getClobFilePath(-1, -1, -1, -1);
+                  OutputStream out = fileIndexFileStrategy.getLOBWriter(baseContainer, path, writeStrategy);
+                  characters = tiffPage.writeCLOBToOutputStream(characters, out);
+                  out.close();
+                  fileIndexFileStrategy.addFile(path);
+                  lobsTracker.addClobFile();
+                }
+
+                lobsTracker.resetClobFileCount();
+
+                // Write to docIndex here
+                docIndexFileStrategy.addDoc(lobsTracker.getLOBsCount(), 0, 1, lobsTracker.getDocCollectionCount(),
+                  "originalFilename", SIARDDKConstants.CLOB_FILE_EXTENSION, null);
+
+                // TO-DO: Test all of the above CLOBs stuff!
+
+              } else {
+
+                // Archive CLOB as string
+
+                lobsTracker.updateMaxClobLength(tableCounter, columnIndex, clobsData.length());
+
+                // lobsTracker.addLOB(); // Only if LOB not NULL
+                tableXmlWriter.append(TAB).append(TAB).append("<c").append(String.valueOf(columnIndex)).append(">")
+                  .append(XMLUtils.encode(clobsData)).append("</c").append(String.valueOf(columnIndex)).append(">\n");
+              }
             }
 
           } else if (cell instanceof BinaryCell) {

@@ -17,6 +17,7 @@ public class LOBsTracker {
   private int docCollectionCount;
   private int folderCount; // Folder within docCollection
   private int currentTable;
+  private int clobFileCount;
   private Map<Integer, List<Integer>> columnIndicesOfLOBsInTables; // Info like:
                                                                    // table 7
                                                                    // has LOBs
@@ -33,6 +34,7 @@ public class LOBsTracker {
     docCollectionCount = 1;
     folderCount = 0;
     currentTable = 0;
+    clobFileCount = 1;
     columnIndicesOfLOBsInTables = new HashMap<Integer, List<Integer>>();
     lobTypes = new HashMap<Integer, Map<Integer, String>>();
   }
@@ -152,6 +154,28 @@ public class LOBsTracker {
     } else {
       folderCount -= 1;
     }
+  }
+
+  /**
+   * Must be called after the CLOB file has been archived
+   */
+  public void addClobFile() {
+    clobFileCount += 1;
+  }
+
+  /**
+   * Must be called after the entire CLOB (i.e. all the CLOB files) has been
+   * archived
+   */
+  public void resetClobFileCount() {
+    clobFileCount = 1;
+  }
+
+  /**
+   * @return the clobFileCount
+   */
+  public int getClobFileCount() {
+    return clobFileCount;
   }
 }
 

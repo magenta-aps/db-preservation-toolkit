@@ -18,6 +18,7 @@ public class SIARDDKConstants {
   public static final String XML_EXTENSION = "xml";
   public static final String XSD_EXTENSION = "xsd";
   public static final String UNKNOWN_MIMETYPE_BLOB_EXTENSION = "bin";
+  public static final String CLOB_FILE_EXTENSION = "tif";
 
   // Name of the context documentation folder within the archive
   public static final String CONTEXT_DOCUMENTATION_RELATIVE_PATH = "ContextDocumentation";
