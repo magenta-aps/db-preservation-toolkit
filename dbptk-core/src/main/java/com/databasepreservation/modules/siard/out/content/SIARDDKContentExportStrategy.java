@@ -49,6 +49,7 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
 
   private int tableCounter;
   private boolean foundClob;
+  private int CLOBsThresholdLength;
   private boolean foundUnknownMimetype;
 
   private ContentPathExportStrategy contentPathExportStrategy;
@@ -78,6 +79,9 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
     baseContainer = siarddkExportModule.getMainContainer();
     writeStrategy = siarddkExportModule.getWriteStrategy();
     lobsTracker = siarddkExportModule.getLobsTracker();
+
+    // Get threshold for CLOBs length before converting to tiff
+    CLOBsThresholdLength = Integer.parseInt(siarddkExportModule.getExportModuleArgs().get("cloblength"));
   }
 
   @Override
@@ -289,6 +293,14 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
             } else {
 
               // CLOB is not NULL
+
+              // if CLOB is large enough
+              // while more CLOB content:
+              // get outputstream from fileindexfilestrategy
+              // tiffPage.writeCLOBToOutputStream
+              // close outputstream
+
+              // else do as below
 
               foundClob = true;
               String clobsData = simpleCell.getSimpledata();

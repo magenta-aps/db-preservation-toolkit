@@ -48,7 +48,7 @@ public class SIARDDKConstants {
   // Constants for LOBs
   public static final String BINARY_LARGE_OBJECT = "BINARY LARGE OBJECT";
   public static final String CHARACTER_LARGE_OBJECT = "CHARACTER LARGE OBJECT";
-  public static final String DEFAULT_MAX_CLOB_LENGTH = "2048";
+  public static final String DEFAULT_MAX_CLOB_LENGTH = "100";
   public static final String DEFAULT_CLOB_TYPE = "NATIONAL CHARACTER VARYING";
 
   // Constants for converting CLOBs to tiff
