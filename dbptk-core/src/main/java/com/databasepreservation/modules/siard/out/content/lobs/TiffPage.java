@@ -3,11 +3,13 @@ package com.databasepreservation.modules.siard.out.content.lobs;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.OutputStream;
 
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
 import com.databasepreservation.modules.siard.constants.SIARDDKConstants;
+import com.sun.media.jai.codec.TIFFEncodeParam;
 
 /**
  * @author Andreas Kring <andreas@magenta.dk>
@@ -55,9 +57,9 @@ public class TiffPage {
   /**
    * Write line to tiff image
    * 
-   * @param words
-   *          An array of words to be written to line in the image
-   * @return Array of remaining words which could not fit into the line
+   * @param characters
+   *          An array of characters to be written to line in the image
+   * @return Array of remaining characters which could not fit into the image
    */
   public char[] writeLines(char[] characters) {
     return writeLinesStrategy.writeLines(characters, this);
@@ -71,6 +73,27 @@ public class TiffPage {
     fileParameters.addSource(im).add("/tmp/img.tiff").add("TIFF").add(null);
     JAI.create("filestore", fileParameters);
 
+  }
+
+  public char[] writeCLOBToOutputStream(char[] characters, OutputStream stream) {
+
+    char[] remainingChars = writeLines(characters);
+
+    // Set TIFF encoding parameters
+    TIFFEncodeParam tiffEncodingParam = new TIFFEncodeParam();
+    tiffEncodingParam.setCompression(TIFFEncodeParam.COMPRESSION_PACKBITS);
+
+    // Set image parameter
+    ParameterBlock imageParameter = new ParameterBlock().add(image);
+    RenderedOp im = JAI.create("awtimage", imageParameter);
+
+    // Set output parameters
+    ParameterBlock outputParameters = new ParameterBlock().addSource(im).add(stream).add("TIFF").add(tiffEncodingParam);
+
+    // Write image to outputstream
+    JAI.create("encode", outputParameters);
+
+    return remainingChars;
   }
 
   public BufferedImage getImage() {
