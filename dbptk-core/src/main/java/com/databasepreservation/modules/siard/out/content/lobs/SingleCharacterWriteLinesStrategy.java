@@ -28,6 +28,7 @@ public class SingleCharacterWriteLinesStrategy implements WriteLinesStrategy {
     graphics.setBackground(Color.WHITE);
     graphics.clearRect(0, 0, tiffPage.getWidth(), tiffPage.getHeight());
     graphics.setColor(Color.BLACK);
+    graphics.setFont(tiffPage.getFont());
     FontMetrics fontMetrics = graphics.getFontMetrics();
 
     int currentXPosition = tiffPage.getxMargin();
@@ -36,40 +37,19 @@ public class SingleCharacterWriteLinesStrategy implements WriteLinesStrategy {
     int maximumAllowedYPosition = tiffPage.getHeight() - tiffPage.getyMargin();
     int characterCounter = 0;
 
-    // char[] characters = new char[clob.length()];
-    // clob.getChars(0, clob.length(), characters, 0);
-
     while (currentYPosition < maximumAllowedYPosition && characterCounter < characters.length) {
       graphics.drawChars(characters, characterCounter, 1, currentXPosition, currentYPosition);
       currentXPosition += fontMetrics.charWidth(characters[characterCounter]);
       characterCounter += 1;
-      if (currentXPosition + fontMetrics.charWidth(characters[characterCounter]) > maximumAllowedXPosition) {
+      if (characterCounter < characters.length
+        && currentXPosition + fontMetrics.charWidth(characters[characterCounter]) > maximumAllowedXPosition) {
         currentXPosition = tiffPage.getxMargin();
         currentYPosition += fontMetrics.getHeight();
       }
-      // Write character
-      // update counter
-      // advance x pos
-      // if over maxXpos - change line
-      //
     }
 
     graphics.dispose();
 
     return Arrays.copyOfRange(characters, characterCounter, characters.length);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.databasepreservation.modules.siard.out.content.lobs.WriteLinesStrategy
-   * #stringWidth(java.lang.String)
-   */
-  @Override
-  public int stringWidth(String s) {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
 }

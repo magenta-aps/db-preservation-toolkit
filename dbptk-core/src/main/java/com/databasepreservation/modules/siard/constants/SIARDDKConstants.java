@@ -1,5 +1,6 @@
 package com.databasepreservation.modules.siard.constants;
 
+import java.awt.Font;
 import java.io.File;
 
 /**
@@ -51,11 +52,12 @@ public class SIARDDKConstants {
   public static final String DEFAULT_CLOB_TYPE = "NATIONAL CHARACTER VARYING";
 
   // Constants for converting CLOBs to tiff
-  public static final int PAGE_HEIGHT = 300;
-  public static final int PAGE_WIDTH = 300;
-  public static final int XMARGIN = 20;
-  public static final int YMARGIN = 20;
-  public static final int FONT_SIZE = 15;
+  public static final int PAGE_HEIGHT = 827;
+  public static final int PAGE_WIDTH = 1169;
+  public static final int XMARGIN = 80;
+  public static final int YMARGIN = 80;
+  public static final int FONT_SIZE = 19;
+  public static final String FONT_NAME = Font.SANS_SERIF;
 
   // Namespaces
   public static final String DBPTK_NS = "http://www.databasepreservation.com/xmlns/1.0";

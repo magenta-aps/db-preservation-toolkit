@@ -17,12 +17,4 @@ public interface WriteLinesStrategy {
    */
   public char[] writeLines(char[] characters, TiffPage tiffPage);
 
-  /**
-   * Get the pixel width of a string
-   * 
-   * @param s
-   *          String to determine width of
-   * @return Width of the string in pixels
-   */
-  public int stringWidth(String s);
 }

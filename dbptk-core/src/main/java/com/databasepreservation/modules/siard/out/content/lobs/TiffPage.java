@@ -17,11 +17,10 @@ public class TiffPage {
 
   private int width;
   private int height;
-  // private int currentYPosition;
   private int xMargin;
   private int yMargin;
-  // private Font font;
-  // private String[] wordBuffer;
+  private int fontSize;
+  private Font font;
   private BufferedImage image;
   private WriteLinesStrategy writeLinesStrategy;
 
@@ -29,24 +28,28 @@ public class TiffPage {
    * Standard constructor - set width and height
    */
   public TiffPage(int width, int height) {
-    this(width, height, SIARDDKConstants.XMARGIN, SIARDDKConstants.YMARGIN, new SentenceWriteLinesStrategy());
+    this(width, height, SIARDDKConstants.XMARGIN, SIARDDKConstants.YMARGIN, SIARDDKConstants.FONT_SIZE,
+      new SingleCharacterWriteLinesStrategy());
   }
 
   /**
    * Constructor for setting width, height and the margins for the tiff image
    */
-  public TiffPage(int width, int height, int xMargin, int yMargin, WriteLinesStrategy writeLinesStrategy) {
+  public TiffPage(int width, int height, int xMargin, int yMargin, int fontSize, WriteLinesStrategy writeLinesStrategy) {
     image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
     this.width = width;
     this.height = height;
     this.xMargin = xMargin;
     this.yMargin = yMargin;
-    // currentYPosition = 0;
+    this.fontSize = fontSize;
     this.writeLinesStrategy = writeLinesStrategy;
   }
 
-  public Font createFont(int size) {
-    return new Font(Font.SANS_SERIF, Font.PLAIN, size);
+  public Font getFont() {
+    if (font == null) {
+      font = new Font(SIARDDKConstants.FONT_NAME, Font.PLAIN, fontSize);
+    }
+    return font;
   }
 
   /**
