@@ -105,9 +105,12 @@ public class TableIndexFileStrategy implements IndexFileStrategy {
           // Set folder - mandatory
           tableType.setFolder("table" + Integer.toString(tableCounter));
 
-          // TO-DO: fix how description should be obtained
           // Set description
-          tableType.setDescription("Description should be entered manually");
+          if (tableStructure.getDescription() != null && !tableStructure.getDescription().trim().isEmpty()) {
+            tableType.setDescription(tableStructure.getDescription().trim());
+          } else {
+            tableType.setDescription("Description should be entered manually");
+          }
 
           // Set columns - mandatory
           int columnCounter = 1;
@@ -154,9 +157,12 @@ public class TableIndexFileStrategy implements IndexFileStrategy {
             // Set nullable
             column.setNullable(columnStructure.getNillable());
 
-            // TO-DO: get (how?) and set description
             // Set description
-            column.setDescription("Description should be set");
+            if (columnStructure.getDescription() != null && !columnStructure.getDescription().trim().isEmpty()) {
+              column.setDescription(columnStructure.getDescription().trim());
+            } else {
+              column.setDescription("Description should be set");
+            }
 
             // Set functionalDescription
             String lobType = lobsTracker.getLOBsType(tableCounter, columnCounter);
