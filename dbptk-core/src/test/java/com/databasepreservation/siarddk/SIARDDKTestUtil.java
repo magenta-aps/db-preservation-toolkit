@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -19,6 +20,7 @@ import com.databasepreservation.Main;
 public class SIARDDKTestUtil {
 
   private static final CustomLogger logger = CustomLogger.getLogger(SIARDDKTestUtil.class);
+  private static Pattern fileIndexMd5sumReplacementPattern = Pattern.compile("<md5>[A-Fa-f0-9]{32}</md5>");
 
   static void assertArchiveFoldersEqualAfterExportImport(Path archiveFldToProcessPath, Path archiveFldExpectedPath,
     Path archiveFldTmp) throws IOException {
@@ -73,11 +75,10 @@ public class SIARDDKTestUtil {
     String actualSha1 = DigestUtils.sha1Hex(actualFileContent);
 
     if (!expectedSha1.equals(actualSha1)) {
-      logger.debug("sha1 sum of [" + actualFile.getAbsolutePath() + "] is [" + actualSha1
-        + "], and does not match the expected sha1 sum of [" + expectedFile.getAbsolutePath() + "], which is ["
-        + expectedSha1 + "]");
+        logger.debug("sha1 sum of [" + actualFile.getAbsolutePath() + "] is [" + actualSha1
+          + "], and does not match the expected sha1 sum of [" + expectedFile.getAbsolutePath() + "], which is ["
+          + expectedSha1 + "]");
     }
-
     assert expectedSha1.equals(actualSha1) : "Expected the content of [" + actualFile.getAbsolutePath()
       + "] to match the content of [" + expectedFile.getAbsolutePath() + "]";
   }
