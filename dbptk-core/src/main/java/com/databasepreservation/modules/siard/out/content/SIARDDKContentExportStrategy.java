@@ -51,6 +51,7 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
   private int tableCounter;
   private boolean foundClob;
   private boolean foundUnknownMimetype;
+  private String currentTableName;
 
   private ContentPathExportStrategy contentPathExportStrategy;
   private FileIndexFileStrategy fileIndexFileStrategy;
@@ -95,6 +96,8 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
 
   @Override
   public void openTable(TableStructure tableStructure) throws ModuleException {
+
+    currentTableName = tableStructure.getName();
 
     tableXmlOutputStream = fileIndexFileStrategy.getWriter(baseContainer,
       contentPathExportStrategy.getTableXmlFilePath(0, tableStructure.getIndex()), writeStrategy);
@@ -191,9 +194,9 @@ public class SIARDDKContentExportStrategy implements ContentExportStrategy {
 
       String xsdType = SIARDDKsql99ToXsdType.convert(sql99Type);
       if (xsdType == null) {
-        throw new ModuleException(
-          "Unable to export column [" + columnStructure.getName() + "] in table [" + tableStructure.getName()
-            + "], as siard-dk doesn't support the normalized SQL data type of the column: [" + sql99Type + "] ");
+        throw new ModuleException("Unable to export column [" + columnStructure.getName() + "] in table ["
+          + tableStructure.getName() + "], as siard-dk doesn't support the normalized SQL data type of the column: ["
+          + sql99Type + "] ");
       }
 
       c.setAttribute("type", xsdType);

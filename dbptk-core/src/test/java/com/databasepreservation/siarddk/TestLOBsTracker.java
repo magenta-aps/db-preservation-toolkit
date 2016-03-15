@@ -7,6 +7,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.databasepreservation.model.exception.ModuleException;
 import com.databasepreservation.modules.siard.constants.SIARDDKConstants;
 import com.databasepreservation.modules.siard.out.content.LOBsTracker;
 
@@ -20,8 +21,8 @@ public class TestLOBsTracker {
   private LOBsTracker lobsTracker;
 
   @BeforeMethod
-  public void setUp() {
-    lobsTracker = new LOBsTracker();
+  public void setUp() throws ModuleException {
+    lobsTracker = new LOBsTracker(null);
 
     lobsTracker.addLOBLocationAndType(1, 1, SIARDDKConstants.BINARY_LARGE_OBJECT);
     lobsTracker.addLOBLocationAndType(1, 3, SIARDDKConstants.BINARY_LARGE_OBJECT);

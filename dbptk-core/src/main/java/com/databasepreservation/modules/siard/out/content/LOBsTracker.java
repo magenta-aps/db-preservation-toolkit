@@ -1,9 +1,14 @@
 package com.databasepreservation.modules.siard.out.content;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.databasepreservation.modules.siard.constants.SIARDDKConstants;
 
@@ -27,14 +32,18 @@ public class LOBsTracker {
                                                        // column 2 is a "BLOB"
   private Map<Integer, String> lobTypeInColumn;
   private Map<Integer, Map<Integer, Integer>> maxCLOBlength;
+  private Map<String, List<Integer>> clobsToConvert;
 
-  public LOBsTracker() {
+  public LOBsTracker(String pathToCLOBsList) {
     LOBsCount = 0;
     docCollectionCount = 1;
     folderCount = 0;
     currentTable = 0;
     columnIndicesOfLOBsInTables = new HashMap<Integer, List<Integer>>();
     lobTypes = new HashMap<Integer, Map<Integer, String>>();
+    clobsToConvert = new TreeMap<String, List<Integer>>();
+
+    configureCLOBsConversionTracker(pathToCLOBsList);
   }
 
   /**
@@ -151,6 +160,58 @@ public class LOBsTracker {
       docCollectionCount -= 1;
     } else {
       folderCount -= 1;
+    }
+  }
+
+  /**
+   * Returns true if the CLOB should be converted to tiff and false otherwise
+   * 
+   * @return returns true if the CLOB should be converted to tiff and false
+   *         otherwise
+   */
+  public boolean convertCLOBToTiff() {
+    return false;
+  }
+
+  private void addColumnToCLOBsConversionMap(String tableName, int column) {
+
+  }
+
+  private void configureCLOBsConversionTracker(String pathToCLOBsList) {
+    pathToCLOBsList = "/tmp/list.txt";
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(pathToCLOBsList));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (!line.isEmpty()) {
+          String[] schemaTableColumn = line.split("\\" + SIARDDKConstants.CLOB_LIST_SEPARATOR);
+          if (schemaTableColumn.length == 3) {
+            String tableName = schemaTableColumn[1];
+            int column = Integer.parseInt(schemaTableColumn[2]);
+
+            // / MOVE THIS TO METHOD ABOVE ///
+
+            if (clobsToConvert.get(tableName) != null) {
+              List<Integer> columnIndices = clobsToConvert.get(tableName);
+              columnIndices.add(column);
+            } else {
+              List<Integer> columnIndices = new ArrayList<Integer>();
+              columnIndices.add(column);
+              clobsToConvert.put(tableName, columnIndices);
+            }
+
+            // ////////////////////
+
+          } else {
+            throw new RuntimeException("Syntax error in the file " + pathToCLOBsList);
+          }
+        }
+      }
+      reader.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }

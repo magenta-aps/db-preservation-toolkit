@@ -25,8 +25,6 @@ import com.databasepreservation.modules.siard.constants.SIARDDKConstants;
  */
 public class ListCLOBs implements DatabaseExportModule {
 
-  private final String SEPARATOR = ".";
-
   private Path outputFile;
   private OutputStream outputStream;
   private OutputStreamWriter writer;
@@ -53,7 +51,6 @@ public class ListCLOBs implements DatabaseExportModule {
     try {
       outputStream = Files.newOutputStream(outputFile);
       writer = new OutputStreamWriter(outputStream, "UTF8");
-      System.out.println("writer created");
     } catch (IOException e) {
       throw new ModuleException("Could not create file " + outputFile.toAbsolutePath().toString(), e);
     }
@@ -89,13 +86,15 @@ public class ListCLOBs implements DatabaseExportModule {
         throw new ModuleException("Couldn't find table with id: " + tableId);
       }
 
+      int columnIndex = 0;
       for (ColumnStructure columnStructure : currentTable.getColumns()) {
         if (columnStructure.getType().getSql99TypeName().equals(SIARDDKConstants.CHARACTER_LARGE_OBJECT)) {
-          String clobLocation = new StringBuilder().append(currentSchema.getName()).append(SEPARATOR)
-            .append(currentTable.getName()).append(SEPARATOR).append(columnStructure.getName()).toString();
-          System.out.println(clobLocation);
+          String clobLocation = new StringBuilder().append(currentSchema.getName())
+            .append(SIARDDKConstants.CLOB_LIST_SEPARATOR).append(currentTable.getName())
+            .append(SIARDDKConstants.CLOB_LIST_SEPARATOR).append(columnIndex).toString();
           writer.append(clobLocation).append("\n");
         }
+        columnIndex++;
       }
 
     } catch (IOException e) {

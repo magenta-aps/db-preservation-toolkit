@@ -49,6 +49,7 @@ public class SIARDDKConstants {
   public static final String CHARACTER_LARGE_OBJECT = "CHARACTER LARGE OBJECT";
   public static final String DEFAULT_MAX_CLOB_LENGTH = "2048";
   public static final String DEFAULT_CLOB_TYPE = "NATIONAL CHARACTER VARYING";
+  public static final String CLOB_LIST_SEPARATOR = ".";
 
   // Namespaces
   public static final String DBPTK_NS = "http://www.databasepreservation.com/xmlns/1.0";
