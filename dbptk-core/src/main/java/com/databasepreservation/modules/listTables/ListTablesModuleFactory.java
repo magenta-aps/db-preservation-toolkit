@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.databasepreservation.model.exception.LicenseNotAcceptedException;
 import com.databasepreservation.model.modules.DatabaseExportModule;
 import com.databasepreservation.model.modules.DatabaseImportModule;
@@ -23,9 +25,17 @@ import com.databasepreservation.model.parameters.Parameters;
  * @author Bruno Ferreira <bferreira@keep.pt>
  */
 public class ListTablesModuleFactory implements DatabaseModuleFactory {
+
+  private static final String TABLES = "tables";
+  private static final String CLOBS = "clobs";
+
   private static final Parameter file = new Parameter().shortName("f").longName("file")
     .description("Path to output file that can be read by SIARD2 export module").hasArgument(true)
     .setOptionalArgument(false).required(true);
+
+  private static final Parameter listType = new Parameter().shortName("t").longName("type")
+    .description("Set to 'tables' (default) or 'clobs'").hasArgument(true).setOptionalArgument(false).required(false)
+    .valueIfNotSet(TABLES);
 
   @Override
   public boolean producesImportModules() {
@@ -46,6 +56,7 @@ public class ListTablesModuleFactory implements DatabaseModuleFactory {
   public Map<String, Parameter> getAllParameters() {
     HashMap<String, Parameter> parameterHashMap = new HashMap<String, Parameter>();
     parameterHashMap.put(file.longName(), file);
+    parameterHashMap.put(listType.longName(), listType);
     return parameterHashMap;
   }
 
@@ -56,7 +67,7 @@ public class ListTablesModuleFactory implements DatabaseModuleFactory {
 
   @Override
   public Parameters getExportModuleParameters() throws OperationNotSupportedException {
-    return new Parameters(Arrays.asList(file), null);
+    return new Parameters(Arrays.asList(file, listType), null);
   }
 
   @Override
@@ -70,6 +81,21 @@ public class ListTablesModuleFactory implements DatabaseModuleFactory {
     throws OperationNotSupportedException, LicenseNotAcceptedException {
     Path pFile = Paths.get(parameters.get(file));
 
-    return new ListTables(pFile);
+    String pListType = null;
+    if (StringUtils.isNoneBlank(parameters.get(listType))) {
+      pListType = parameters.get(listType);
+    } else {
+      pListType = listType.valueIfNotSet();
+    }
+
+    if (pListType.equals(TABLES)) {
+      return new ListTables(pFile);
+    } else if (pListType.equals(CLOBS)) {
+      return new ListCLOBs(pFile);
+    } else {
+      // TODO: what is the proper way to handle this?
+      return null;
+    }
+
   }
 }
